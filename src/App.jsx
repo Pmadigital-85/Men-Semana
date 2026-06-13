@@ -60,15 +60,6 @@ const QUICK_RECIPES = [
   { name:"Arroz salteado con huevo", meal:"Cena", time:"15 min", ingredients:["arroz cocido 2 tazas","huevos 2","cebolla ¼","aceite 1 cda","sal al gusto"] },
 ];
 
-const PROD_CATEGORIES = {
-  "🥩 Carnes y Proteínas":["pollo","carne","pechuga","jamón","res","cerdo","pescado","filete","muslo","huevo","huevos","atún","sardina"],
-  "🥛 Lácteos":["leche","queso","yogur","crema","mantequilla","margarina"],
-  "🥦 Frutas y Verduras":["zanahoria","papa","calabaza","espinacas","lechuga","tomate","cebolla","ajo","pepino","brócoli","fresas","mango","plátano","limón","naranja","manzana","pera","uva","melón"],
-  "🌾 Granos y Abarrotes":["arroz","frijoles","lentejas","pasta","fideo","avena","granola","harina","pan","caldo","azúcar","tortilla","arepa","cereal","galleta","café","té"],
-  "🫒 Aceites y Condimentos":["aceite","sal","miel","aderezo","albahaca","pimienta","vinagre","mostaza","ketchup","mayonesa","salsa"],
-  "🧴 Limpieza y Hogar":["detergente","jabón","papel","cloro","suavizante","escoba","esponja","bolsa"],
-  "🛒 Otros":[],
-};
 const catForProduct = (name) => {
   const low = name.toLowerCase();
   for (const [cat, kws] of Object.entries(PROD_CATEGORIES)) {
@@ -77,41 +68,6 @@ const catForProduct = (name) => {
   return "🛒 Otros";
 };
 
-/* ─── Default product catalogue ─── */
-const DEFAULT_PRODUCTS = [
-  { id:"p1",  name:"Arroz blanco (1 kg)",        category:"🌾 Granos y Abarrotes",    unit:"kg"    },
-  { id:"p2",  name:"Frijoles negros (500 g)",     category:"🌾 Granos y Abarrotes",    unit:"bolsa" },
-  { id:"p3",  name:"Pasta corta (500 g)",         category:"🌾 Granos y Abarrotes",    unit:"bolsa" },
-  { id:"p4",  name:"Avena (500 g)",               category:"🌾 Granos y Abarrotes",    unit:"bolsa" },
-  { id:"p5",  name:"Pan de molde",                category:"🌾 Granos y Abarrotes",    unit:"paq"   },
-  { id:"p6",  name:"Harina de maíz (1 kg)",       category:"🌾 Granos y Abarrotes",    unit:"kg"    },
-  { id:"p7",  name:"Azúcar blanca (1 kg)",        category:"🌾 Granos y Abarrotes",    unit:"kg"    },
-  { id:"p8",  name:"Café molido (250 g)",         category:"🌾 Granos y Abarrotes",    unit:"paq"   },
-  { id:"p9",  name:"Pechuga de pollo (1 kg)",     category:"🥩 Carnes y Proteínas",    unit:"kg"    },
-  { id:"p10", name:"Carne molida (1 kg)",         category:"🥩 Carnes y Proteínas",    unit:"kg"    },
-  { id:"p11", name:"Huevos (docena)",             category:"🥩 Carnes y Proteínas",    unit:"doc"   },
-  { id:"p12", name:"Jamón en láminas",            category:"🥩 Carnes y Proteínas",    unit:"paq"   },
-  { id:"p13", name:"Filete de pescado (500 g)",   category:"🥩 Carnes y Proteínas",    unit:"paq"   },
-  { id:"p14", name:"Atún en lata",                category:"🥩 Carnes y Proteínas",    unit:"lata"  },
-  { id:"p15", name:"Leche entera (1 L)",          category:"🥛 Lácteos",              unit:"L"     },
-  { id:"p16", name:"Queso blanco (500 g)",        category:"🥛 Lácteos",              unit:"paq"   },
-  { id:"p17", name:"Yogur natural (500 g)",       category:"🥛 Lácteos",              unit:"paq"   },
-  { id:"p18", name:"Mantequilla (250 g)",         category:"🥛 Lácteos",              unit:"paq"   },
-  { id:"p19", name:"Tomate (kg)",                 category:"🥦 Frutas y Verduras",     unit:"kg"    },
-  { id:"p20", name:"Cebolla (kg)",                category:"🥦 Frutas y Verduras",     unit:"kg"    },
-  { id:"p21", name:"Papa / Patata (kg)",          category:"🥦 Frutas y Verduras",     unit:"kg"    },
-  { id:"p22", name:"Zanahoria (kg)",              category:"🥦 Frutas y Verduras",     unit:"kg"    },
-  { id:"p23", name:"Plátano / Banana (kg)",       category:"🥦 Frutas y Verduras",     unit:"kg"    },
-  { id:"p24", name:"Limón (kg)",                  category:"🥦 Frutas y Verduras",     unit:"kg"    },
-  { id:"p25", name:"Lechuga",                     category:"🥦 Frutas y Verduras",     unit:"unid"  },
-  { id:"p26", name:"Aceite vegetal (1 L)",        category:"🫒 Aceites y Condimentos", unit:"L"     },
-  { id:"p27", name:"Sal (1 kg)",                  category:"🫒 Aceites y Condimentos", unit:"kg"    },
-  { id:"p28", name:"Salsa de tomate",             category:"🫒 Aceites y Condimentos", unit:"bot"   },
-  { id:"p29", name:"Mayonesa (500 g)",            category:"🫒 Aceites y Condimentos", unit:"paq"   },
-  { id:"p30", name:"Detergente líquido (1 L)",    category:"🧴 Limpieza y Hogar",     unit:"bot"   },
-  { id:"p31", name:"Jabón de manos",              category:"🧴 Limpieza y Hogar",     unit:"unid"  },
-  { id:"p32", name:"Papel higiénico (x4)",        category:"🧴 Limpieza y Hogar",     unit:"paq"   },
-];
 
 const BADGES = [
   { id:"first_meal",   icon:"🍳", label:"Primera Receta",    desc:"Agrega tu primera receta",              pts:10  },
