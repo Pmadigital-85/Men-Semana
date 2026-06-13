@@ -94,6 +94,6 @@ export function useUserData(userId) {
     supermarkets, setSupermarkets,
     prices, setPrices,
     syncing, lastSaved,
-    dataLoaded: products !== null,   // true once first load completes
+    dataLoaded: true,   // always show app, load data in background
   }
 }
