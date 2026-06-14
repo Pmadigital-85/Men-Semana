@@ -199,11 +199,17 @@ export default function App({ auth, userData, onUpgrade }) {
   const callAI = async (messages) => {
     const res = await fetch("/api/ai",{
       method:"POST", headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:1500, messages }),
+      body:JSON.stringify({ model:"claude-sonnet-4-6", max_tokens:1500, messages }),
     });
     const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
     const text = data.content?.map(c=>c.text||"").join("");
-    return JSON.parse(text.replace(/```json|```/g,"").trim());
+    const clean = text.replace(/```json[\s\S]*?```|```[\s\S]*?```/g, t => t.replace(/```json|```/g,'').trim()).trim();
+    try { return JSON.parse(clean); } catch { 
+      const match = clean.match(/[\[{][\s\S]*[\]}]/);
+      if (match) return JSON.parse(match[0]);
+      throw new Error("No JSON found");
+    }
   };
 
   const generateAI = async () => {
@@ -211,9 +217,12 @@ export default function App({ auth, userData, onUpgrade }) {
     if (!canUseFeature(auth.plan, "aiCalls")) { onUpgrade(); return; }
     setAiLoading(true); setAiSuggestions([]);
     try {
-      const r = await callAI([{role:"user",content:`Persona de América Latina. Situación: "${aiInput}". Sugiere 6 recetas fáciles con ingredientes disponibles en cualquier país latinoamericano. Nombres descriptivos universales. SOLO JSON: [{"name":"...","meal":"Desayuno|Almuerzo|Cena","time":"15 min","ingredients":["ingrediente cantidad"]}]`}]);
-      setAiSuggestions(r); awardBadge("ai_chef");
-    } catch { showToast("❌ Error IA"); }
+      const r = await callAI([{role:"user",content:`Eres un chef latinoamericano experto. El usuario dice: "${aiInput}". 
+Si menciona un plato específico (ej: ensalada caprese, pizza, sushi), proporciona esa receta exacta con ingredientes precisos.
+Si es una situación general, sugiere 6 recetas variadas para América Latina.
+Usa nombres descriptivos. SOLO JSON sin texto extra: [{"name":"nombre exacto del plato","meal":"Desayuno|Almuerzo|Cena","time":"20 min","ingredients":["ingrediente cantidad"],"description":"descripción breve"}]`}]);
+      setAiSuggestions(Array.isArray(r)?r:[r]); awardBadge("ai_chef");
+    } catch(e) { showToast("❌ Error IA: "+e.message); }
     setAiLoading(false);
   };
 
@@ -221,12 +230,18 @@ export default function App({ auth, userData, onUpgrade }) {
     if (!fridgeInput.trim() && !fridgeImage) return;
     setFridgeLoading(true); setFridgeSuggestions([]);
     try {
-      let content = fridgeImage
-        ? [{type:"image",source:{type:"base64",media_type:"image/jpeg",data:fridgeImage}},{type:"text",text:`Identifica ingredientes en esta nevera. Sugiere 5 recetas fáciles latinoamericanas. SOLO JSON: [{"name":"...","meal":"Desayuno|Almuerzo|Cena","time":"15 min","ingredients":["..."],"uses":["..."]}]`}]
-        : `Tengo: "${fridgeInput}". Sugiere 5 recetas fáciles latinoamericanas con lo que tengo. SOLO JSON: [{"name":"...","meal":"Desayuno|Almuerzo|Cena","time":"15 min","ingredients":["..."],"uses":["..."]}]`;
-      const r = await callAI([{role:"user",content}]);
-      setFridgeSuggestions(r); awardBadge("fridge_scan");
-    } catch { showToast("❌ Error IA"); }
+      let msgContent;
+      if (fridgeImage) {
+        msgContent = [
+          {type:"image",source:{type:"base64",media_type:"image/jpeg",data:fridgeImage}},
+          {type:"text",text:`Analiza esta foto de nevera/refrigerador. Identifica TODOS los ingredientes visibles. Luego sugiere 5 recetas fáciles para América Latina usando esos ingredientes. SOLO JSON sin texto extra: [{"name":"nombre del plato","meal":"Desayuno|Almuerzo|Cena","time":"20 min","ingredients":["ingrediente cantidad"],"uses":["ingrediente que ya tienes"]}]`}
+        ];
+      } else {
+        msgContent = `Tengo estos ingredientes en mi nevera: "${fridgeInput}". Sugiere 5 recetas fáciles latinoamericanas con lo que tengo. Indica qué ingredientes de mi lista usa cada receta. SOLO JSON sin texto extra: [{"name":"nombre del plato","meal":"Desayuno|Almuerzo|Cena","time":"20 min","ingredients":["ingrediente cantidad"],"uses":["ingrediente que ya tienes"]}]`;
+      }
+      const r = await callAI([{role:"user",content:msgContent}]);
+      setFridgeSuggestions(Array.isArray(r)?r:[r]); awardBadge("fridge_scan");
+    } catch(e) { showToast("❌ Error: "+e.message); }
     setFridgeLoading(false);
   };
 
@@ -503,7 +518,15 @@ export default function App({ auth, userData, onUpgrade }) {
                 ? <textarea value={fridgeInput} onChange={e=>setFridgeInput(e.target.value)} placeholder="Ej: pollo, arroz, zanahoria, huevos, tomate..." style={{width:"100%",minHeight:80,padding:"11px 14px",borderRadius:12,border:`2px solid ${C.lila}`,fontSize:14,resize:"vertical",outline:"none",boxSizing:"border-box",fontFamily:"inherit"}}/>
                 : <div>
                     <input type="file" ref={fileRef} accept="image/*" capture="environment" onChange={e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{setFridgeImage(r.result.split(",")[1]);showToast("📸 Foto lista");};r.readAsDataURL(f);}} style={{display:"none"}}/>
-                    <button onClick={()=>fileRef.current.click()} style={{width:"100%",padding:14,background:"#fff",border:`2px dashed ${C.purple}`,borderRadius:14,color:C.purple,fontSize:14,fontWeight:700,cursor:"pointer"}}>{fridgeImage?"✅ Foto cargada — cambiar":"📸 Foto de la nevera"}</button>
+                    <button onClick={()=>fileRef.current.click()} style={{width:"100%",padding:14,background:"#fff",border:`2px dashed ${C.purple}`,borderRadius:14,color:C.purple,fontSize:14,fontWeight:700,cursor:"pointer"}}>
+                      {fridgeImage?"📸 Cambiar foto":"📸 Tomar foto o elegir de galería"}
+                    </button>
+                    {fridgeImage&&(
+                      <div style={{marginTop:10,borderRadius:14,overflow:"hidden",border:`2px solid ${C.purple}`,position:"relative"}}>
+                        <img src={`data:image/jpeg;base64,${fridgeImage}`} alt="Tu nevera" style={{width:"100%",maxHeight:200,objectFit:"cover",display:"block"}}/>
+                        <div style={{position:"absolute",top:8,right:8,background:C.purple,color:"#fff",borderRadius:20,padding:"4px 10px",fontSize:12,fontWeight:700}}>✅ Lista para analizar</div>
+                      </div>
+                    )}
                   </div>
               }
               <button onClick={scanFridge} disabled={fridgeLoading||(!fridgeInput.trim()&&!fridgeImage)} style={{width:"100%",marginTop:12,padding:14,background:fridgeLoading?C.lila:`linear-gradient(135deg,${C.purple},#7B5AB8)`,color:"#fff",border:"none",borderRadius:13,fontSize:14,fontWeight:800,cursor:fridgeLoading?"not-allowed":"pointer"}}>
