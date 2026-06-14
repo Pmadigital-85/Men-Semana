@@ -731,7 +731,8 @@ export default function App({ auth, userData, onUpgrade }) {
                   {supermarkets.map(s=>(
                     <div key={s} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 0",borderBottom:`1px solid ${C.border}`}}>
                       <span style={{fontSize:15,fontWeight:600}}>{s}</span>
-                      <button onClick={()=>removeSupermarket(s)} style={{background:C.orangeLight,color:C.orange,border:"none",borderRadius:8,padding:"5px 12px",cursor:"pointer",fontSize:12,fontWeight:700}}>Eliminar</button>
+                      <button onClick={()=>{const n=prompt("Nuevo nombre:",s);if(n&&n.trim()&&n!==s){setSupermarkets(prev=>prev.map(x=>x===s?n.trim():x));showToast("✅ Nombre actualizado");}}} style={{background:C.greenLight,color:C.green,border:"none",borderRadius:8,padding:"5px 10px",cursor:"pointer",fontSize:12,fontWeight:700,marginRight:6}}>✏️ Editar</button>
+                    <button onClick={()=>removeSupermarket(s)} style={{background:C.orangeLight,color:C.orange,border:"none",borderRadius:8,padding:"5px 12px",cursor:"pointer",fontSize:12,fontWeight:700}}>Eliminar</button>
                     </div>
                   ))}
                   <div style={{display:"flex",gap:8,marginTop:14}}>
