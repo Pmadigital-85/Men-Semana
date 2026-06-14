@@ -885,7 +885,14 @@ export default function App({ auth, userData, onUpgrade }) {
                   <div><div style={{fontWeight:700,fontSize:14}}>{rec.name}</div><div style={{fontSize:11,color:C.muted}}>⏱️ {rec.time} · {rec.ingredients.slice(0,2).join(", ")}</div></div>
                 </div>
               ))}
-              {!filteredRecipes.length&&<p style={{textAlign:"center",color:C.muted,padding:20}}>No encontramos esa receta</p>}
+              {!filteredRecipes.length&&(
+                <div style={{textAlign:"center",padding:20}}>
+                  <p style={{color:C.muted}}>No encontramos esa receta</p>
+                  {search.trim()&&<button onClick={()=>{setRecipe(showPicker.day,showPicker.meal,{name:search.trim(),ingredients:[],meal:showPicker.meal});showToast("✅ Receta personalizada agregada");}} style={{background:C.orange,color:"#fff",border:"none",borderRadius:14,padding:"10px 20px",fontSize:14,fontWeight:700,cursor:"pointer",marginTop:8}}>
+                    ➕ Agregar "{search.trim()}" como receta
+                  </button>}
+                </div>
+              )}
             </div>
           </div>
         </div>
