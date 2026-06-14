@@ -197,7 +197,7 @@ export default function App({ auth, userData, onUpgrade }) {
   const toggleItem = (idx) => setShopping(prev=>prev.map((it,i)=>i===idx?{...it,checked:!it.checked}:it));
 
   const callAI = async (messages) => {
-    const res = await fetch("https://api.anthropic.com/v1/messages",{
+    const res = await fetch("/api/ai",{
       method:"POST", headers:{"Content-Type":"application/json"},
       body:JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:1500, messages }),
     });
